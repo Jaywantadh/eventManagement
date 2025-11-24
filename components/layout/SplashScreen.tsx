@@ -38,36 +38,11 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-navy-900 via-navy-800 to-blue-900 overflow-hidden"
             >
-                <div className="absolute inset-0 overflow-hidden">
-                    {[...Array(20)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            className="absolute w-2 h-2 bg-blue-600 rounded-full"
-                            initial={{
-                                x: Math.random() * window.innerWidth,
-                                y: Math.random() * window.innerHeight,
-                                opacity: 0,
-                            }}
-                            animate={{
-                                y: [null, Math.random() * window.innerHeight],
-                                opacity: [0, 0.6, 0],
-                            }}
-                            transition={{
-                                duration: 3 + Math.random() * 2,
-                                repeat: Infinity,
-                                ease: 'linear',
-                            }}
-                        />
-                    ))}
-                </div>
-
+                {/* Animated logo and title */}
                 <motion.div
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    transition={{
-                        duration: 0.8,
-                        ease: [0.34, 1.56, 0.64, 1],
-                    }}
+                    transition={{ duration: 0.8, ease: [0.34, 1.56, 0.64, 1] }}
                     className="relative z-10 flex flex-col items-center"
                 >
                     <motion.div
@@ -78,11 +53,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
                                 '0 0 20px rgba(37, 99, 235, 0.3)',
                             ],
                         }}
-                        transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: 'easeInOut',
-                        }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                         className="w-24 h-24 bg-blue-600 rounded-2xl flex items-center justify-center mb-6"
                     >
                         <Calendar className="w-12 h-12 text-white" />
@@ -107,6 +78,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
                     </motion.p>
                 </motion.div>
 
+                {/* Progress bar */}
                 <motion.div
                     initial={{ width: 0, opacity: 0 }}
                     animate={{ width: '300px', opacity: 1 }}
