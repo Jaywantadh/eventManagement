@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import Providers from '@/components/Providers'
+import AppWrapper from '@/components/AppWrapper'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-    title: 'Event Management System',
+    title: 'EventHub - Premium Event Management',
     description: 'Professional event management platform for organizing and showcasing events',
 }
 
@@ -18,7 +19,9 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={inter.className}>
-                <Providers>{children}</Providers>
+                <Providers>
+                    <AppWrapper>{children}</AppWrapper>
+                </Providers>
             </body>
         </html>
     )
