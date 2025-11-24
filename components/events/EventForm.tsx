@@ -1,0 +1,200 @@
+'use client'
+
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { eventSchema, EventFormData } from '@/lib/validations'
+import { useState } from 'react'
+import { Upload, X } from 'lucide-react'
+
+interface EventFormProps {
+    onSuccess?: () => void
+    initialData?: any
+    eventId?: string
+}
+
+export default function EventForm({
+    onSuccess,
+    initialData,
+    eventId,
+}: EventFormProps) {
+    const [uploading, setUploading] = useState(false)
+    const [images, setImages] = useState<string[]>(initialData?.images || [])
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+        reset,
+    } = useForm<EventFormData>({
+        resolver: zodResolver(eventSchema),
+        defaultValues: initialData || {},
+    })
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files
+        if (!files || files.length === 0) return
+
+        setUploading(true)
+        try {
+            const formData = new FormData()
+            formData.append('file', files[0])
+
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            })
+
+            if (!response.ok) throw new Error('Upload failed')
+
+            const data = await response.json()
+            setImages(prev => [...prev, data.url])
+        } catch (error) {
+            console.error('Image upload error:', error)
+            alert('Failed to upload image')
+        } finally {
+            setUploading(false)
+        }
+    }
+
+    const removeImage = (index: number) => {
+        setImages(prev => prev.filter((_, i) => i !== index))
+    }
+
+    const onSubmit = async (data: EventFormData) => {
+        try {
+            const payload = {
+                ...data,
+                images,
+            }
+
+            const url = eventId ? `/api/events/${eventId}` : '/api/events'
+            const method = eventId ? 'PUT' : 'POST'
+
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            })
+
+            if (!response.ok) throw new Error('Failed to save event')
+
+            if (!eventId) {
+                reset()
+                setImages([])
+            }
+            onSuccess?.()
+        } catch (error) {
+            console.error('Form submission error:', error)
+            alert('Failed to save event')
+        }
+    }
+
+    return (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Event Name
+                </label>
+                <input
+                    {...register('name')}
+                    type="text"
+                    placeholder="Event Name"
+                    className="input-field"
+                />
+                {errors.name && (
+                    <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+                )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Date
+                    </label>
+                    <input
+                        {...register('date')}
+                        type="date"
+                        className="input-field"
+                    />
+                    {errors.date && (
+                        <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
+                    )}
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Venue
+                    </label>
+                    <input
+                        {...register('venue')}
+                        type="text"
+                        placeholder="Main Hall"
+                        className="input-field"
+                    />
+                </div>
+            </div>
+
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                </label>
+                <textarea
+                    {...register('description')}
+                    placeholder="Description"
+                    rows={4}
+                    className="input-field resize-none"
+                />
+            </div>
+
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Images
+                </label>
+                <div className="space-y-4">
+                    {images.length > 0 && (
+                        <div className="grid grid-cols-3 gap-4">
+                            {images.map((url, index) => (
+                                <div key={index} className="relative group">
+                                    <img
+                                        src={url}
+                                        alt={`Event ${index + 1}`}
+                                        className="w-full h-32 object-cover rounded-lg"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeImage(index)}
+                                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-600 transition-colors">
+                        <Upload className="w-5 h-5 text-gray-400" />
+                        <span className="text-sm text-gray-600">
+                            {uploading ? 'Uploading...' : 'Upload Image'}
+                        </span>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            disabled={uploading}
+                            className="hidden"
+                        />
+                    </label>
+                </div>
+            </div>
+
+            <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {isSubmitting ? 'Saving...' : eventId ? 'Update Event' : 'Add Event'}
+            </button>
+        </form>
+    )
+}
