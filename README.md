@@ -10,7 +10,7 @@ A production-ready, modern event management platform built with Next.js 14, Type
 - **Authentication**: Secure admin access with NextAuth
 - **Real-time Updates**: Optimistic UI with SWR for instant feedback
 - **Animations**: Smooth transitions and micro-interactions with Framer Motion
-- **Image Upload**: Cloudinary integration for event images
+- **Image Support**: Add images via URL
 - **Search & Filter**: Advanced search and date filtering
 - **Responsive Design**: Mobile-first, fully responsive UI
 
@@ -21,7 +21,6 @@ A production-ready, modern event management platform built with Next.js 14, Type
 - **Styling**: Tailwind CSS
 - **Database**: MongoDB with Mongoose
 - **Authentication**: NextAuth.js
-- **Image Storage**: Cloudinary
 - **Form Validation**: React Hook Form + Zod
 - **Data Fetching**: SWR
 - **Animations**: Framer Motion
@@ -49,11 +48,6 @@ NEXTAUTH_SECRET=your-random-secret-key
 NEXTAUTH_URL=http://localhost:3000
 ADMIN_USER=admin
 ADMIN_PASS=admin123
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
-NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your-upload-preset
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
@@ -76,17 +70,18 @@ EventManagement/
 │   │   └── layout.tsx       # Admin layout
 │   ├── api/
 │   │   ├── events/          # Event CRUD endpoints
-│   │   ├── upload/          # Image upload endpoint
 │   │   └── auth/            # NextAuth configuration
 │   ├── events/              # Public events page
 │   └── login/               # Login page
 ├── components/
 │   ├── events/              # Event-related components
-│   ├── Sidebar.tsx          # Admin navigation
-│   └── AdminHeader.tsx      # Admin header
+│   ├── layout/              # Layout components (Sidebar, Header, etc.)
+│   ├── ui/                  # UI components (ThemeToggle, etc.)
+│   └── providers/           # Context providers
+├── docs/                    # Documentation files
+├── scripts/                 # Setup and deployment scripts
 ├── lib/
 │   ├── db.ts                # MongoDB connection
-│   ├── cloudinary.ts        # Cloudinary utilities
 │   └── validations.ts       # Zod schemas
 ├── models/
 │   └── Event.ts             # Mongoose Event model
@@ -130,11 +125,6 @@ Add these in Vercel dashboard:
 - `NEXTAUTH_URL` (your Vercel URL)
 - `ADMIN_USER`
 - `ADMIN_PASS`
-- `CLOUDINARY_CLOUD_NAME`
-- `CLOUDINARY_API_KEY`
-- `CLOUDINARY_API_SECRET`
-- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`
-- `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`
 - `NEXT_PUBLIC_SITE_URL`
 
 ## 🧪 Testing

@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { eventSchema, EventFormData } from '@/lib/validations'
 import { useState } from 'react'
-import { Upload, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import toast from 'react-hot-toast'
 
@@ -19,7 +19,6 @@ export default function EventForm({
     initialData,
     eventId,
 }: EventFormProps) {
-    const [uploading, setUploading] = useState(false)
     const [images, setImages] = useState<string[]>(initialData?.images || [])
 
     const {
@@ -31,33 +30,6 @@ export default function EventForm({
         resolver: zodResolver(eventSchema),
         defaultValues: initialData || {},
     })
-
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files
-        if (!files || files.length === 0) return
-
-        setUploading(true)
-        try {
-            const formData = new FormData()
-            formData.append('file', files[0])
-
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-            })
-
-            if (!response.ok) throw new Error('Upload failed')
-
-            const data = await response.json()
-            setImages(prev => [...prev, data.url])
-            toast.success('Image uploaded successfully!')
-        } catch (error) {
-            console.error('Image upload error:', error)
-            toast.error('Failed to upload image')
-        } finally {
-            setUploading(false)
-        }
-    }
 
     const removeImage = (index: number) => {
         setImages(prev => prev.filter((_, i) => i !== index))
@@ -185,7 +157,7 @@ export default function EventForm({
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Images
                 </label>
                 <div className="space-y-4">
@@ -196,12 +168,12 @@ export default function EventForm({
                                     <img
                                         src={url}
                                         alt={`Event ${index + 1}`}
-                                        className="w-full h-32 object-cover rounded-lg"
+                                        className="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-navy-700"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => removeImage(index)}
-                                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
@@ -210,19 +182,41 @@ export default function EventForm({
                         </div>
                     )}
 
-                    <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-600 transition-colors">
-                        <Upload className="w-5 h-5 text-gray-400" />
-                        <span className="text-sm text-gray-600">
-                            {uploading ? 'Uploading...' : 'Upload Image'}
-                        </span>
+                    <div className="flex gap-2">
                         <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            disabled={uploading}
-                            className="hidden"
+                            type="url"
+                            placeholder="Paste image URL here (e.g., https://example.com/image.jpg)"
+                            className="input-field flex-1"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault()
+                                    const input = e.currentTarget
+                                    if (input.value) {
+                                        setImages(prev => [...prev, input.value])
+                                        input.value = ''
+                                        toast.success('Image added!')
+                                    }
+                                }
+                            }}
                         />
-                    </label>
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                const input = e.currentTarget.previousElementSibling as HTMLInputElement
+                                if (input.value) {
+                                    setImages(prev => [...prev, input.value])
+                                    input.value = ''
+                                    toast.success('Image added!')
+                                }
+                            }}
+                            className="btn-secondary whitespace-nowrap"
+                        >
+                            Add URL
+                        </button>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Paste a direct link to an image and press Enter or click Add.
+                    </p>
                 </div>
             </div>
 
