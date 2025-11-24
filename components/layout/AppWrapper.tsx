@@ -11,7 +11,9 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
     const pathname = usePathname()
 
     useEffect(() => {
-        const splashShown = sessionStorage.getItem('splashShown')
+        if (typeof window === 'undefined') return
+
+        const splashShown = window.sessionStorage.getItem('splashShown')
         if (splashShown) {
             setShowSplash(false)
             setHasShownSplash(true)
@@ -21,7 +23,9 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
     const handleSplashComplete = () => {
         setShowSplash(false)
         setHasShownSplash(true)
-        sessionStorage.setItem('splashShown', 'true')
+        if (typeof window !== 'undefined') {
+            window.sessionStorage.setItem('splashShown', 'true')
+        }
     }
 
     const isLoginPage = pathname === '/login'
